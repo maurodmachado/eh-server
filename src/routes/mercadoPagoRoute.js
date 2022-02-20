@@ -4,8 +4,6 @@ const paymentController = require('../controllers/PaymentController');
 
 router.post('/qr', paymentController.getQR);
 
-router.get('/feedback/:payment_id', paymentController.getFeedback);
-
 router.post('/create-preference', paymentController.checkoutPro);
 
 router.get('/checkpayment/:id', paymentController.getFeedback);
