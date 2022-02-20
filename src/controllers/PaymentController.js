@@ -13,7 +13,7 @@ const nodemailer = require('nodemailer');
 const tokenMP = 'TEST-3236077582921193-020605-de428f18888280880e7e95ec3de225c7-282971304';
 
 const mercadopago = require ('mercadopago');
-const { crearUsuario, getUser } = require('./usuarioController');
+const { getUser } = require('./usuarioController');
 mercadopago.configure({
   access_token: tokenMP
 });

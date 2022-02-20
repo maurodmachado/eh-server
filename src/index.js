@@ -28,7 +28,7 @@ app.get("/", (req, res) => {
   res.send("Apis de MERN SAT Probando");
 });
 
-app.listen(process.env.PORT || 5000, () =>{  
+app.listen(process.env.PORT || 4000, () =>{  
   console.log('Server on 4000');
 })
 
