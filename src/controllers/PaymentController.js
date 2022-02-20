@@ -21,7 +21,7 @@ mercadopago.configure({
 exports.checkoutPro = async (req,res) => {
 	let preference = {
     external_reference: "Entrená Hábitos", 
-    notification_url: "https://frozen-reef-45650.herokuapp.com/checkout/webhook",
+    notification_url: "https://9epite594b.execute-api.us-east-1.amazonaws.com/default/webhookMP",
 		items: req.body.items,
     payer:{
       name: req.body.comprador.nombres,
