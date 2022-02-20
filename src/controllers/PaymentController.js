@@ -77,11 +77,13 @@ exports.webhook = async (req, res) => {
    });
    if(response.data.status_detail === "accredited"){
     const user = await getUser({plan: Number(response.data.additional_info.items[0].id)})
+    const fechaPago = new Date(response.data.date_created);
+    console.log(fechaPago.toLocaleString());
     const mailOptions = {
       from: 'entrenahabitos.entrenamiento@gmail.com',
       to: 'machadomauro.cft@gmail.com',
       subject: `Pago acreditado - ${response.data.external_reference} - ${response.data.description}`,
-      text: `Bienvenido a Entrena Habitos! Tu pago de ${response.data.transaction_details.total_paid_amount} fue acreditado. A continuación encontraras la información para ingresar a la plataforma. \nTu cuenta de acceso es: \nUsuario: ${user.usuario}\nContraseña: entrenahabitos2022`
+      html: `<b>Bienvenido a Entrena Habitos!</b><br>Tu pago de $${response.data.transaction_details.total_paid_amount} realizado el día <b>${fechaPago.toLocaleString()}</b> fue acreditado. A continuación encontraras la información para ingresar a la plataforma.<br />Tu cuenta de acceso es: <br /><b>Usuario:<b/> ${user.usuario}<br /><b>Contraseña:</b> entrenahabitos2022`
     };
     
     transporter.sendMail(mailOptions, function(error, info){
@@ -96,7 +98,7 @@ exports.webhook = async (req, res) => {
       from: 'entrenahabitos.entrenamiento@gmail.com',
       to: 'machadomauro.cft@gmail.com',
       subject: `Pago PENDIENTE - ${response.data.external_reference} - ${response.data.description}`,
-      text: `Bienvenido a Entrena Habitos! Tu pago de ${response.data.transaction_details.total_paid_amount} esta en estado PENDIENTE. Cuando se acredite recibirás la información necesaria para acceder a la plataforma. Muchas gracias por confiar en nosotros. Staff EH.`
+      text: `Bienvenido a Entrena Habitos! Tu pago de $${response.data.transaction_details.total_paid_amount} realizado el día ${response.data.date_created} esta en estado PENDIENTE. Cuando se acredite recibirás la información necesaria para acceder a la plataforma. Muchas gracias por confiar en nosotros. Staff EH.`
     };
     
     transporter.sendMail(mailOptions, function(error, info){

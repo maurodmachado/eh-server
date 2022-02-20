@@ -25,7 +25,7 @@ app.use("/usuarios", usuariosRoute);
 app.use("/auth", authRoute);
 
 app.get("/", (req, res) => {
-  res.send("Apis de MERN SAT Probando");
+  res.send("API EH");
 });
 
 app.listen(process.env.PORT || 4000, () =>{  
