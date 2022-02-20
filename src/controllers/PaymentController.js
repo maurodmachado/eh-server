@@ -21,7 +21,7 @@ mercadopago.configure({
 exports.checkoutPro = async (req,res) => {
 	let preference = {
     external_reference: "Entrená Hábitos", 
-    notification_url: "https://9epite594b.execute-api.us-east-1.amazonaws.com/default/webhookMP",
+    notification_url: "https://entrena-habitos.herokuapp.com/checkout/webhook",
 		items: req.body.items,
     payer:{
       name: req.body.comprador.nombres,
@@ -91,6 +91,21 @@ exports.webhook = async (req, res) => {
         console.log('Email sent: ' + info.response);
       }
     });
+  }else if(response.data.status_detail === "pending_contingency"){
+    const mailOptions = {
+      from: 'entrenahabitos.entrenamiento@gmail.com',
+      to: 'machadomauro.cft@gmail.com',
+      subject: `Pago PENDIENTE - ${response.data.external_reference} - ${response.data.description}`,
+      text: `Bienvenido a Entrena Habitos! Tu pago de ${response.data.transaction_details.total_paid_amount} esta en estado PENDIENTE. Cuando se acredite recibirás la información necesaria para acceder a la plataforma. Muchas gracias por confiar en nosotros. Staff EH.`
+    };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
   }
 
    res.json({
@@ -101,25 +116,8 @@ exports.webhook = async (req, res) => {
     } catch (error) {
       console.log(error);
     } 
-  }else{
-    
-  const mailOptions = {
-    from: 'entrenahabitos.entrenamiento@gmail.com',
-    to: 'machadomauro.cft@gmail.com',
-    subject: `Pago pendiente`,
-    text: `Tu pago quedo pendiente. Al acreditarse se te enviara el email con el acceso. Staff EH.`
-  };
-  transporter.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent CONT: ' + info.response);
-    }
-  });
-  
-  res.json({
-    status: "maome"
-  });
+  }else{     
+  return res.status(400);
   }
   return res.status(201);
 }
