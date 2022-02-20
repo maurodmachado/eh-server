@@ -24,6 +24,9 @@ app.use('/checkout', mercadoPagoRoute);
 app.use("/usuarios", usuariosRoute);
 app.use("/auth", authRoute);
 
+app.get("/", (req, res) => {
+  res.send("Apis de MERN SAT Probando");
+});
 
 app.listen(4000, () =>{  
   console.log('Server on 4000');
