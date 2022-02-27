@@ -14,7 +14,7 @@ const UsuariosSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        default: 'inactive'
+        default: 'INACTIVO'
     },
     plan: {
         type: mongoose.Schema.Types.ObjectId,
