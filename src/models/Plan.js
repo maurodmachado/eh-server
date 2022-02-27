@@ -33,6 +33,9 @@ const PlanesSchema = mongoose.Schema({
         type: Date,
         default: Date.now(),
     },
+    linkPago:{
+        type: String,
+    },
     updatedAt: {
         type: Date,
         default: Date.now(),
