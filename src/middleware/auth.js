@@ -7,8 +7,12 @@ module.exports = function (req, res, next) {
   }
   try {
     const cifrado = jwt.verify(token,process.env.SECRETA);
-    req.user = cifrado.user;
-    next();
+    console.log(cifrado);
+    if(cifrado.user.isAdmin === true){
+      next();
+    }else{
+      res.status(401).json({ msg: "Token sin autorizacion para esto" });
+    }
   } catch (error) {
     res.status(401).json({ msg: "Token no válido" });
   }

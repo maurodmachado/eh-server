@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const mercadoPagoRoute = require('./routes/mercadoPagoRoute');
 const usuariosRoute = require('./routes/usuarios');
+const evolucionesRoute = require('./routes/evolucionesRoute');
+const planesRoute = require('./routes/planesRoute');
 const authRoute = require('./routes/auth');
 const app = express();
 const conectarDB = require("./config/db");
@@ -23,6 +25,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/checkout', mercadoPagoRoute);
 app.use("/usuarios", usuariosRoute);
 app.use("/auth", authRoute);
+app.use("/evoluciones", evolucionesRoute);
+app.use("/planes", planesRoute);
 
 app.get("/", (req, res) => {
   res.send("API EH");

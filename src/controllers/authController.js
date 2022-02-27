@@ -1,15 +1,12 @@
 const Usuario = require('../models/Usuario');
 const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken');
+const Plan = require('../models/Plan');
 
 exports.autenticarUsuario = async (req, res) => {
     const {usuario, password} = req.body;
     try {
-        let user = await Usuario.findOne({usuario}).
-        populate({ path: 'alumnos',
-        // Get friends of friends - populate the 'friends' array for every friend
-        populate: { path: 'persona' } })
-        
+        let user = await Usuario.findOne({usuario})
         if(!user){
             return res.status(400).json({ msg: 'El usuario no existe'})
         }
@@ -18,18 +15,21 @@ exports.autenticarUsuario = async (req, res) => {
         if(!passCorrecto){
             return res.status(400).json({ msg: 'Password incorrecta'})
         }
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-        
+        let planCompleto = await Plan.findById(user.plan)
+        let userSend = { 
+            status: user.status,
+            isAdmin: user.isAdmin,
+            _id: user._id,
+            usuario: user.usuario,
+            plan: planCompleto
+        }
+        const payload = { user: userSend };
         jwt.sign(payload, process.env.SECRETA, {
-            expiresIn: 3600
+            expiresIn: 36000
         }, async (error, token) => {
             if (error) throw error;         
             //Mensaje de confirmacion
-            await res.status(200).send({token, user});
+            await res.status(200).send({token});
         });
     } catch (error) {
         console.log(error);
@@ -46,3 +46,4 @@ exports.usuarioAutenticado = async (req,res) => {
     }
 
 }
+

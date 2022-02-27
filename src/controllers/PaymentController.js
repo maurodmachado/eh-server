@@ -13,7 +13,8 @@ const nodemailer = require('nodemailer');
 const tokenMP = 'TEST-3236077582921193-020605-de428f18888280880e7e95ec3de225c7-282971304';
 
 const mercadopago = require ('mercadopago');
-const { getUser } = require('./usuarioController');
+const { getUser, crearUsuario } = require('./usuarioController');
+const Pago = require('../models/Pago');
 mercadopago.configure({
   access_token: tokenMP
 });
@@ -42,9 +43,9 @@ exports.checkoutPro = async (req,res) => {
       }
     },
 		back_urls: {
-			"success": "http://localhost:3000/aprobado",
-			"failure": "http://localhost:3000/rechazado",
-			"pending": "http://localhost:3000/pendiente"
+			"success": "https://entrenahabitos.netlify.app/aprobado",
+			"failure": "https://entrenahabitos.netlify.app/rechazado",
+			"pending": "https://entrenahabitos.netlify.app/pendiente"
 		},
 		auto_return: "approved",
 	};
@@ -59,6 +60,7 @@ exports.checkoutPro = async (req,res) => {
 
 exports.webhook = async (req, res) => {
 
+ 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -74,16 +76,24 @@ exports.webhook = async (req, res) => {
        'Authorization': `Bearer ${tokenMP}`,
        "Content-Type": "application/json"
      }
-   });
+   });const user = response.data.payer.email;
+   const {usuarioCreado} = crearUsuario({ usuario: user, password:'entrenahabitos2022', status:'ACTIVO', plan: response.data.additional_info.items[0].id })
+   
    if(response.data.status_detail === "accredited"){
-    const user = await getUser({plan: Number(response.data.additional_info.items[0].id)})
+     console.log();
+     try {
+      const pago = new Pago({usuario: usuarioCreado._id, amount: response.data.transaction_amount, status:'pay', plan: response.data.additional_info.items[0].id});
+      await pago.save();
+    
+    } catch (error) {
+      console.log(error);
+    }
     const fechaPago = new Date(response.data.date_created);
-    console.log(fechaPago.toLocaleString());
     const mailOptions = {
       from: 'entrenahabitos.entrenamiento@gmail.com',
       to: 'machadomauro.cft@gmail.com',
       subject: `Pago acreditado - ${response.data.external_reference} - ${response.data.description}`,
-      html: `<b>Bienvenido a Entrena Habitos!</b><br>Tu pago de $${response.data.transaction_details.total_paid_amount} realizado el día <b>${fechaPago.toLocaleString()}</b> fue acreditado. A continuación encontraras la información para ingresar a la plataforma.<br />Tu cuenta de acceso es: <br /><b>Usuario:<b/> ${user.usuario}<br /><b>Contraseña:</b> entrenahabitos2022`
+      html: `<b>Bienvenido a Entrena Habitos!</b><br>Tu pago de $${response.data.transaction_details.total_paid_amount} realizado el día <b>${fechaPago.toLocaleString()}</b> fue acreditado. A continuación encontraras la información para ingresar a la plataforma.<br />Tu cuenta de acceso es: <br /><b>Usuario:<b/> ${user}<br /><b>Contraseña:</b> entrenahabitos2022`
     };
     
     transporter.sendMail(mailOptions, function(error, info){
@@ -94,6 +104,8 @@ exports.webhook = async (req, res) => {
       }
     });
   }else if(response.data.status_detail === "pending_contingency"){
+    const pago = new Pago({usuario: usuarioCreado._id, amount: response.data.transaction_amount, status:'pending', plan: response.data.additional_info.items[0].id});
+    await pago.save();
     const mailOptions = {
       from: 'entrenahabitos.entrenamiento@gmail.com',
       to: 'machadomauro.cft@gmail.com',

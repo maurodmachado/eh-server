@@ -3,7 +3,6 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.getUser = async ({plan}) => {
-  const user = 'ehplan'+plan;
   try {
     let usuario = await Usuario.findOne({usuario:user})
     if (!usuario) {
@@ -16,27 +15,27 @@ exports.getUser = async ({plan}) => {
   }
 }
 
+exports.getUsers = async (req, res) => {
+  try {
+    let usuarios = await Usuario.find().populate('plan');
+    console.log(usuarios);
+    if (!usuarios) {
+      return {msg:"No hay usuarios cargados"}
+    }else{
+      res.status(200).json(usuarios);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({msg: "Error al obtener usuarios"});
+  }
+}
+
 exports.crearUsuario = async (req, res) => {
   const { usuario, password, status, plan } = req.body;
   try {
     let user = await Usuario.exists({ usuario });
-    if (user) {
-      const payload = {
-        user: {
-          id: user.id,
-        },
-      };
-      jwt.sign(
-        payload,
-        process.env.SECRETA,
-        {
-          expiresIn: 3600,
-        },
-        (error, token) => {
-          if (error) throw error;
-          res.status(200).json({ user, token });
-        }
-      );
+    if(user){
+      return res.status(404).json({error:'Usuario ya existente'})
     }
     user = new Usuario(req.body);
     const salt = await bcryptjs.genSalt(10);
@@ -44,16 +43,12 @@ exports.crearUsuario = async (req, res) => {
     user.plan = plan
     user.status = status
     const usuarioCreado = await user.save();
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
+    const payload = { user };
     jwt.sign(
       payload,
       process.env.SECRETA,
       {
-        expiresIn: 3600,
+        expiresIn: 36000,
       },
       (error, token) => {
         if (error) throw error;
@@ -62,9 +57,34 @@ exports.crearUsuario = async (req, res) => {
       }
     );
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).json({msg: "Error al crear usuario"});
   }
 };
+
+
+exports.actualizarContra = async (req,res) => {
+  
+      const {user_id, new_password} = req.body;
+      const nuevoUsuario = {};
+      const salt = await bcryptjs.genSalt(10);
+      nuevoUsuario.password = await bcryptjs.hash(new_password, salt);
+      try {
+        let user = await Usuario.findById(user_id);
+        if (!user) {
+          return res.status(404).json({ msg: "Usuario no encontrado" });
+        }
+        user = await Usuario.findOneAndUpdate(
+          { _id: user_id },
+          { $set: nuevoUsuario },
+          { new: true }
+        );
+        res.json({  msg: "Contraseña actualizada" });
+      } catch (error) {
+        console.log(error);
+        res.status(500).send("Hubo un error");
+      }
+
+}
 
 exports.actualizarUsuario = async (req, res) => {
   const { usuario, password, dni, status, plan } = req.body;

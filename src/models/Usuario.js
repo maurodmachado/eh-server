@@ -17,7 +17,12 @@ const UsuariosSchema = mongoose.Schema({
         default: 'inactive'
     },
     plan: {
-        type: Number
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Plan'
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
     createdAt: {
         type: Date,
