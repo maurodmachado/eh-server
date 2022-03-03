@@ -6,7 +6,7 @@ const Plan = require('../models/Plan');
 exports.autenticarUsuario = async (req, res) => {
     const {usuario, password} = req.body;
     try {
-        let user = await Usuario.findOne({usuario})
+        let user = await Usuario.findOne({usuario}).populate('recomendacion').populate('plan');
         if(!user){
             return res.status(400).json({ msg: 'El usuario no existe'})
         }
@@ -21,7 +21,8 @@ exports.autenticarUsuario = async (req, res) => {
             isAdmin: user.isAdmin,
             _id: user._id,
             usuario: user.usuario,
-            plan: planCompleto
+            plan: user.plan,
+            recomendacion: user.recomendacion
         }
         const payload = { user: userSend };
         jwt.sign(payload, process.env.SECRETA, {
@@ -32,7 +33,6 @@ exports.autenticarUsuario = async (req, res) => {
             await res.status(200).send({token});
         });
     } catch (error) {
-        console.log(error);
         res.status(500).send('Hubo un error');
     }
 }

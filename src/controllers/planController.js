@@ -47,7 +47,6 @@ exports.eliminarPlan = async (req, res) => {
     await Plan.findOneAndRemove({ _id: req.params.id });
     res.status(200).json({ msg: "Plan eliminado" });
   } catch (error) {
-    console.log(error);
     res.status(500).send("Hubo un error");
   }
 };

@@ -51,7 +51,6 @@ exports.checkoutPro = async (req,res) => {
 	};
 	mercadopago.preferences.create(preference)
 		.then(function (response) {
-      console.log(response.body);
 			res.json(response.body.sandbox_init_point);
 		}).catch(function (error) {
 			console.log(error);
@@ -80,7 +79,6 @@ exports.webhook = async (req, res) => {
    const {usuarioCreado} = crearUsuario({ usuario: user, password:'entrenahabitos2022', status:'ACTIVO', plan: response.data.additional_info.items[0].id })
    
    if(response.data.status_detail === "accredited"){
-     console.log();
      try {
       const pago = new Pago({usuario: usuarioCreado._id, amount: response.data.transaction_amount, status:'pay', plan: response.data.additional_info.items[0].id});
       await pago.save();

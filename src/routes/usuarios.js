@@ -7,6 +7,8 @@ router.post("/", auth, usuarioController.crearUsuario);
 
 router.get("/", auth, usuarioController.getUsers);
 
+router.get("/:id", auth, usuarioController.getUser);
+
 router.put("/:id", auth, usuarioController.actualizarUsuario);
 
 router.delete("/:id", auth, usuarioController.eliminarUsuario);

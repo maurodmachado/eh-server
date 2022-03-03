@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 
 exports.getEvoluciones = async (req, res) => {
   const { token } = req.body;
-  console.log(token);
   let usuario;
   jwt.verify(token, process.env.SECRETA, (err, decoded) => {      
     if (err) {
@@ -15,15 +14,13 @@ exports.getEvoluciones = async (req, res) => {
   }
   );
   try {
-    let evolucion = await Evolucion.find({usuario: usuario}).select('-usuario').select('-_id');;
-    console.log(evolucion);
+    let evolucion = await Evolucion.find({usuario: usuario}).select('-usuario').select('-_id');
     if (!evolucion) {
       return []
     }else{
       return res.status(200).json(evolucion);   
     }
   } catch (error) {
-    console.log(error);
     return res.status(200).json(error);
   }
 }
@@ -49,7 +46,6 @@ exports.crearEvolucion = async (req, res) => {
     res.status(200).json({status: 200, msg: "Evolución creada con exito", evolucion});
       
   } catch (error) {
-    console.log(error);
     res.status(400).send("Hubo un error");
   }
 };

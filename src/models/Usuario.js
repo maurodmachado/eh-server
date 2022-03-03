@@ -20,6 +20,10 @@ const UsuariosSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plan'
     },
+    recomendacion: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Recomendacion'
+    },
     isAdmin: {
         type: Boolean,
         default: false

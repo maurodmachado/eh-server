@@ -2,36 +2,34 @@ const Usuario = require("../models/Usuario");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.getUser = async ({plan}) => {
+exports.getUser = async (req, res) => {
   try {
-    let usuario = await Usuario.findOne({usuario:user})
+    let usuario = await Usuario.findById(req.params.id).populate('recomendacion').populate('plan');
     if (!usuario) {
-      return {msg:"El usuario no existe"}
+      res.status(404).json({msg:"El usuario no existe"})
     }else{
-      return usuario
+      res.status(200).json(usuario)
     }
   } catch (error) {
-    return {error: error}
+    res.status(400).json({msg: "Error al obtener usuario"})
   }
 }
 
 exports.getUsers = async (req, res) => {
   try {
-    let usuarios = await Usuario.find().populate('plan');
-    console.log(usuarios);
+    let usuarios = await Usuario.find().populate('plan').populate('recomendacion');
     if (!usuarios) {
       return {msg:"No hay usuarios cargados"}
     }else{
       res.status(200).json(usuarios);
     }
   } catch (error) {
-    console.log(error);
     res.status(400).json({msg: "Error al obtener usuarios"});
   }
 }
 
 exports.crearUsuario = async (req, res) => {
-  const { usuario, password, status, plan } = req.body;
+  const { usuario, password, status, plan, recomendacion } = req.body;
   try {
     let user = await Usuario.exists({ usuario });
     if(user){
@@ -40,8 +38,9 @@ exports.crearUsuario = async (req, res) => {
     user = new Usuario(req.body);
     const salt = await bcryptjs.genSalt(10);
     user.password = await bcryptjs.hash(password, salt);
-    user.plan = plan
-    user.status = status
+    user.plan = plan;
+    user.status = status;
+    user.recomendacion = recomendacion;
     const usuarioCreado = await user.save();
     const payload = { user };
     jwt.sign(
@@ -52,7 +51,6 @@ exports.crearUsuario = async (req, res) => {
       },
       (error, token) => {
         if (error) throw error;
-        console.log('Usuario Creado');
         res.status(200).json({ usuarioCreado, token });
       }
     );
@@ -80,14 +78,13 @@ exports.actualizarContra = async (req,res) => {
         );
         res.json({  msg: "Contraseña actualizada" });
       } catch (error) {
-        console.log(error);
         res.status(500).send("Hubo un error");
       }
 
 }
 
 exports.actualizarUsuario = async (req, res) => {
-  const { usuario, password, dni, status, plan } = req.body;
+  const { usuario, password, dni, status, plan, recomendacion } = req.body;
   const nuevoUsuario = {};
   if (usuario) {
     nuevoUsuario.usuario = usuario;
@@ -102,8 +99,11 @@ exports.actualizarUsuario = async (req, res) => {
   if(plan){
     nuevoUsuario.plan = plan;
   }
-  if(plan){
+  if(status){
   nuevoUsuario.status = status;
+  }
+  if(recomendacion){
+  nuevoUsuario.recomendacion = recomendacion;
   }
   try {
     let user = await Usuario.findById(req.params.id);

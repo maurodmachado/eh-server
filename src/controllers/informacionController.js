@@ -9,7 +9,6 @@ exports.getInfo = async (req, res) => {
       res.status(200).json(info)
     }
   } catch (error) {
-    console.log(error);
     res.status(400).json({msg: "Error al obtener info"})
   }
 }
@@ -47,7 +46,7 @@ exports.modificarInfo = async (req, res) => {
   try {
     let info = await Informacione.findById(req.params.id);
     if (!info) {
-      return res.status(404).json({ msg: "Informaci{on no encontrada" });
+      return res.status(404).json({ msg: "Información no encontrada" });
     }
     info = await Informacione.findOneAndUpdate(
       { _id: req.params.id },

@@ -9,6 +9,7 @@ const usuariosRoute = require('./routes/usuarios');
 const evolucionesRoute = require('./routes/evolucionesRoute');
 const planesRoute = require('./routes/planesRoute');
 const informacionRoute = require('./routes/informacionRoute');
+const recomendacionRoute = require('./routes/recomendacionRoute');
 const authRoute = require('./routes/auth');
 const app = express();
 const conectarDB = require("./config/db");
@@ -29,6 +30,7 @@ app.use("/auth", authRoute);
 app.use("/evoluciones", evolucionesRoute);
 app.use("/planes", planesRoute);
 app.use("/informacion", informacionRoute);
+app.use("/recomendaciones", recomendacionRoute);
 
 app.get("/", (req, res) => {
   res.send("API EH");
